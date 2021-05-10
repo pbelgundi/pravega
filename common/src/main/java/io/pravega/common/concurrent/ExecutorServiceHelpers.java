@@ -105,7 +105,7 @@ public final class ExecutorServiceHelpers {
     }
 
     /**
-     * Operates like Executors.cachedThreadPool but with a custom thread timeout and pool name.
+     * Creates new ThreadPoolExecutor with the provided macThreadCount, thread keepAliveTimeout and pool name.
      * @return A new threadPool
      * @param maxThreadCount The maximum number of threads to allow in the pool.
      * @param threadTimeout the number of milliseconds that a thread should sit idle before shutting down.
@@ -113,6 +113,18 @@ public final class ExecutorServiceHelpers {
      */
     public static ThreadPoolExecutor getShrinkingExecutor(int maxThreadCount, int threadTimeout, String poolName) {
         return FACTORY.newShrinkingExecutor(maxThreadCount, threadTimeout, poolName);
+    }
+
+    /**
+     * Creates a new ExecutorService with the provided corePoolSize, maxPoolSize, keepAliveTime & PoolName.
+     *
+     * @param corePoolSize The number of threads in the threadpool
+     * @param maxPoolSize The number of threads in the threadpool
+     * @param poolName The name of the pool (this will be printed in logs)
+     * @return A new executor service.
+     */
+    public static ExecutorService newBoundedThreadPool(int corePoolSize, int maxPoolSize, String poolName) {
+        return FACTORY.newBoundedThreadPool(corePoolSize, maxPoolSize, poolName, Thread.NORM_PRIORITY);
     }
 
     /**

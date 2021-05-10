@@ -42,6 +42,7 @@ final class ExecutorServiceFactory {
     private final ThreadLeakDetectionLevel detectionLevel;
     private final CreateScheduledExecutor createScheduledExecutor;
     private final CreateShrinkingExecutor createShrinkingExecutor;
+    private final CreateBoundedExecutor createBoundedExecutor;
     private final Runnable onLeakDetected;
 
     //endregion
@@ -75,6 +76,10 @@ final class ExecutorServiceFactory {
             this.createShrinkingExecutor = (maxThreadCount, threadTimeout, factory) ->
                     new ThreadPoolExecutor(0, maxThreadCount, threadTimeout, TimeUnit.MILLISECONDS,
                             new LinkedBlockingQueue<>(), factory, new CallerRuns(factory.toString()));
+            this.createBoundedExecutor = (coreThreadCount, maxThreadCount, threadTimeout, factory) ->
+                    new ThreadPoolExecutor(coreThreadCount, maxThreadCount, threadTimeout, TimeUnit.MILLISECONDS,
+                            new LinkedBlockingQueue<>(), factory, new CallerRuns(factory.toString()));
+
         } else {
             // Light and Aggressive need a special executor that overrides the finalize() method.
             this.createScheduledExecutor = (size, factory) -> {
@@ -84,6 +89,11 @@ final class ExecutorServiceFactory {
             this.createShrinkingExecutor = (maxThreadCount, threadTimeout, factory) -> {
                 logNewThreadPoolCreated(factory.toString());
                 return new LeakDetectorThreadPoolExecutor(0, maxThreadCount, threadTimeout, TimeUnit.MILLISECONDS,
+                        new LinkedBlockingQueue<>(), factory, new CallerRuns(factory.toString()));
+            };
+            this.createBoundedExecutor = (coreThreadCount, maxThreadCount, threadTimeout, factory) -> {
+                logNewThreadPoolCreated(factory.toString());
+                return new LeakDetectorThreadPoolExecutor(coreThreadCount, maxThreadCount, threadTimeout, TimeUnit.MILLISECONDS,
                         new LinkedBlockingQueue<>(), factory, new CallerRuns(factory.toString()));
             };
         }
@@ -170,7 +180,7 @@ final class ExecutorServiceFactory {
     }
 
     /**
-     * Operates like Executors.cachedThreadPool but with a custom thread timeout and pool name.
+     * Creates a new ThreadPoolExecutor with the provided maxThreadCount, keepAliveTimeout and pool name.
      *
      * @param maxThreadCount The maximum number of threads to allow in the pool.
      * @param threadTimeout  the number of milliseconds that a thread should sit idle before shutting down.
@@ -182,6 +192,21 @@ final class ExecutorServiceFactory {
         return this.createShrinkingExecutor.apply(maxThreadCount, threadTimeout, factory);
     }
 
+    /**
+     * Creates a new ThreadPoolExecutor with given corePoolSize, maxPoolSize, poolName and threadPriority
+     *
+     * @param corePoolSize   The number of threads in the threadpool
+     * @param maxPoolSize    The number of threads in the threadpool
+     * @param poolName       The name of the pool (this will be printed in logs)
+     * @param threadPriority The priority to be assigned to the threads
+     * @return A new executor service
+     */
+    ThreadPoolExecutor newBoundedThreadPool(int corePoolSize, int maxPoolSize,  String poolName, int threadPriority) {
+        ThreadFactory threadFactory = getThreadFactory(poolName, threadPriority);
+        final long keepAliveTimeMillis = 100L;
+        // Caller runs only occurs after shutdown, as queue size is unbounded.
+        return this.createBoundedExecutor.apply(corePoolSize, maxPoolSize, keepAliveTimeMillis, threadFactory);
+    }
     //endregion
 
     //region ThreadFactory Helper Classes
@@ -294,5 +319,9 @@ final class ExecutorServiceFactory {
         ThreadPoolExecutor apply(int maxThreadCount, int threadTimeout, ThreadFactory factory);
     }
 
+    @FunctionalInterface
+    private interface CreateBoundedExecutor {
+        ThreadPoolExecutor apply(int coreThreadCount, int maxThreadCount, long threadTimeout, ThreadFactory factory);
+    }
     //endregion
 }
