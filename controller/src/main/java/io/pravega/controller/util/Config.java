@@ -78,7 +78,10 @@ public final class Config {
             "service.rpc.listener.port", 9090, "service.port");
 
     public static final Property<Integer> PROPERTY_TASK_POOL_SIZE = Property.named(
-            "service.asyncTaskPool.size", 80, "service.asyncTaskPoolSize");
+            "service.asyncTaskPool.size", 20, "service.asyncTaskPoolSize");
+
+    public static final Property<Integer> PROPERTY_MAX_TASK_POOL_SIZE = Property.named(
+            "service.max.asyncTaskPool.size", 80, "service.max.asyncTaskPoolSize");
 
     public static final Property<String> PROPERTY_SERVICE_HOST_IP = Property.named(
             "segmentstore.connect.host.nameOrIp", "localhost", "service.hostIp");
@@ -206,6 +209,7 @@ public final class Config {
     //RPC Server configuration
     public static final int RPC_SERVER_PORT;
     public static final int ASYNC_TASK_POOL_SIZE;
+    public static final int ASYNC_MAX_TASK_POOL_SIZE;
     public static final String RPC_PUBLISHED_SERVER_HOST;
     public static final int RPC_PUBLISHED_SERVER_PORT;
 
@@ -299,6 +303,7 @@ public final class Config {
 
         RPC_SERVER_PORT = p.getInt(PROPERTY_SERVICE_PORT);
         ASYNC_TASK_POOL_SIZE = p.getInt(PROPERTY_TASK_POOL_SIZE);
+        ASYNC_MAX_TASK_POOL_SIZE = p.getInt(PROPERTY_MAX_TASK_POOL_SIZE);
         RPC_PUBLISHED_SERVER_HOST = p.get(PROPERTY_RPC_HOST);
         RPC_PUBLISHED_SERVER_PORT = p.getInt(PROPERTY_RPC_PORT);
         SERVICE_HOST = p.get(PROPERTY_SERVICE_HOST_IP);

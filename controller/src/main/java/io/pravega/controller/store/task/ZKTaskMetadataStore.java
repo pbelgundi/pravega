@@ -26,6 +26,7 @@ import org.apache.zookeeper.data.Stat;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -37,7 +38,7 @@ class ZKTaskMetadataStore extends AbstractTaskMetadataStore {
     private final CuratorFramework client;
     private final String taskRoot = "/taskIndex";
 
-    ZKTaskMetadataStore(CuratorFramework client, ScheduledExecutorService executor) {
+    ZKTaskMetadataStore(CuratorFramework client, ExecutorService executor) {
         super(new ZKHostIndex(client, "/hostTaskIndex", executor), executor);
         this.client = client;
     }

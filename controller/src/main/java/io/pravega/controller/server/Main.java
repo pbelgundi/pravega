@@ -97,6 +97,7 @@ public class Main {
 
             ControllerServiceConfig serviceConfig = ControllerServiceConfigImpl.builder()
                     .threadPoolSize(Config.ASYNC_TASK_POOL_SIZE)
+                    .maxThreadPoolSize(Config.ASYNC_MAX_TASK_POOL_SIZE)
                     .storeClientConfig(storeClientConfig)
                     .hostMonitorConfig(hostMonitorConfig)
                     .controllerClusterListenerEnabled(true)

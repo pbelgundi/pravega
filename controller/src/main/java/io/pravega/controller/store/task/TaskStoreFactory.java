@@ -20,14 +20,14 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.curator.framework.CuratorFramework;
 
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Task store factory.
  */
 public class TaskStoreFactory {
 
-    public static TaskMetadataStore createStore(StoreClient storeClient, ScheduledExecutorService executor) {
+    public static TaskMetadataStore createStore(StoreClient storeClient, ExecutorService executor) {
         switch (storeClient.getType()) {
             case Zookeeper:
             case PravegaTable:
@@ -41,12 +41,12 @@ public class TaskStoreFactory {
 
     @VisibleForTesting
     public static TaskMetadataStore createZKStore(final CuratorFramework client,
-                                                  final ScheduledExecutorService executor) {
+                                                  final ExecutorService executor) {
         return new ZKTaskMetadataStore(client, executor);
     }
 
     @VisibleForTesting
-    public static TaskMetadataStore createInMemoryStore(final ScheduledExecutorService executor) {
+    public static TaskMetadataStore createInMemoryStore(final ExecutorService executor) {
         return new InMemoryTaskMetadataStore(executor);
     }
 }

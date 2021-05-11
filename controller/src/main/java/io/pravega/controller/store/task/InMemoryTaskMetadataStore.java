@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -36,7 +37,7 @@ class InMemoryTaskMetadataStore extends AbstractTaskMetadataStore {
     @GuardedBy("lockTable")
     private final Map<Resource, LockData> lockTable;
 
-    InMemoryTaskMetadataStore(ScheduledExecutorService executor) {
+    InMemoryTaskMetadataStore(ExecutorService executor) {
         super(new InMemoryHostIndex(), executor);
         lockTable = new HashMap<>();
     }

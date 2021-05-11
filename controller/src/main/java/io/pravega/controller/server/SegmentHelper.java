@@ -49,11 +49,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 import io.pravega.shared.protocol.netty.ConnectionFailedException;
@@ -126,10 +123,10 @@ public class SegmentHelper implements AutoCloseable {
 
     private final HostControllerStore hostStore;
     private final ConnectionPool connectionPool;
-    private final ScheduledExecutorService executorService;
+    private final ExecutorService executorService;
     private final AtomicReference<Duration> timeout;
 
-    public SegmentHelper(final ConnectionPool connectionPool, HostControllerStore hostStore, ScheduledExecutorService executorService) {
+    public SegmentHelper(final ConnectionPool connectionPool, HostControllerStore hostStore, ExecutorService executorService) {
         this.connectionPool = connectionPool;
         this.hostStore = hostStore;
         this.executorService = executorService;

@@ -78,6 +78,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -94,8 +95,8 @@ public class ControllerServiceStarter extends AbstractIdleService implements Aut
     private final StoreClient storeClient;
     private final String objectId;
 
-    private ScheduledExecutorService controllerExecutor;
-    private ScheduledExecutorService eventExecutor;
+    private ExecutorService controllerExecutor;
+    private ExecutorService eventExecutor;
     private ScheduledExecutorService retentionExecutor;
     private ScheduledExecutorService watermarkingExecutor;
 
@@ -178,9 +179,9 @@ public class ControllerServiceStarter extends AbstractIdleService implements Aut
 
         try {
             //Initialize the executor service.
-            controllerExecutor = ExecutorServiceHelpers.newScheduledThreadPool(serviceConfig.getThreadPoolSize(),
-                                                                               "controllerpool");
-            eventExecutor = ExecutorServiceHelpers.newScheduledThreadPool(serviceConfig.getThreadPoolSize(),
+            controllerExecutor = ExecutorServiceHelpers.newBoundedThreadPool(serviceConfig.getThreadPoolSize(), serviceConfig.getMaxThreadPoolSize(),
+                                                                    "controllerpool");
+            eventExecutor = ExecutorServiceHelpers.newBoundedThreadPool(serviceConfig.getThreadPoolSize(), serviceConfig.getMaxThreadPoolSize(),
                                                                                "eventprocessor");
 
             retentionExecutor = ExecutorServiceHelpers.newScheduledThreadPool(Config.RETENTION_THREAD_POOL_SIZE,

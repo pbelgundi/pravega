@@ -23,7 +23,7 @@ import com.google.common.base.Preconditions;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Abstract task metadata store.
@@ -32,10 +32,10 @@ public abstract class AbstractTaskMetadataStore implements TaskMetadataStore {
 
     private final static String TAG_SEPARATOR = "_%%%_";
     private final static String RESOURCE_PART_SEPARATOR = "_%_";
-    protected final ScheduledExecutorService executor;
+    protected final ExecutorService executor;
     private final HostIndex hostIndex;
 
-    AbstractTaskMetadataStore(HostIndex hostIndex, ScheduledExecutorService executor) {
+    AbstractTaskMetadataStore(HostIndex hostIndex, ExecutorService executor) {
         this.hostIndex = hostIndex;
         this.executor = executor;
     }

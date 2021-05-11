@@ -38,8 +38,8 @@ import lombok.ToString;
 @ToString
 @Getter
 public class ControllerServiceConfigImpl implements ControllerServiceConfig {
-
     private final int threadPoolSize;
+    private final int maxThreadPoolSize;
     private final StoreClientConfig storeClientConfig;
     private final HostMonitorConfig hostMonitorConfig;
     private final boolean controllerClusterListenerEnabled;
@@ -59,6 +59,7 @@ public class ControllerServiceConfigImpl implements ControllerServiceConfig {
 
     @Builder
     ControllerServiceConfigImpl(final int threadPoolSize,
+                                final int maxThreadPoolSize,
                                 final StoreClientConfig storeClientConfig,
                                 final HostMonitorConfig hostMonitorConfig,
                                 final boolean controllerClusterListenerEnabled,
@@ -70,6 +71,7 @@ public class ControllerServiceConfigImpl implements ControllerServiceConfig {
                                 final Duration retentionFrequency,
                                 final Duration shutdownTimeout) {
         Exceptions.checkArgument(threadPoolSize > 0, "threadPoolSize", "Should be positive integer");
+        Exceptions.checkArgument(maxThreadPoolSize >= threadPoolSize, "maxThreadPoolSize", "maxThreadPoolSize should be greater than coreThreadPoolSize.");
         Preconditions.checkNotNull(storeClientConfig, "storeClientConfig");
         Preconditions.checkNotNull(hostMonitorConfig, "hostMonitorConfig");
         Preconditions.checkNotNull(timeoutServiceConfig, "timeoutServiceConfig");
@@ -91,6 +93,7 @@ public class ControllerServiceConfigImpl implements ControllerServiceConfig {
         }
 
         this.threadPoolSize = threadPoolSize;
+        this.maxThreadPoolSize = maxThreadPoolSize;
         this.storeClientConfig = storeClientConfig;
         this.hostMonitorConfig = hostMonitorConfig;
         this.controllerClusterListenerEnabled = controllerClusterListenerEnabled;

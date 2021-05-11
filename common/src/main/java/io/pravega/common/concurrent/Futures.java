@@ -23,17 +23,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -584,7 +574,7 @@ public final class Futures {
      * @param <T>             The Type argument for the CompletableFuture to create.
      * @return A CompletableFuture with a timeout.
      */
-    public static <T> CompletableFuture<T> futureWithTimeout(Duration timeout, ScheduledExecutorService executorService) {
+    public static <T> CompletableFuture<T> futureWithTimeout(Duration timeout, ExecutorService executorService) {
         return futureWithTimeout(timeout, null, executorService);
     }
 
@@ -597,7 +587,7 @@ public final class Futures {
      * @param <T>             The Type argument for the CompletableFuture to create.
      * @return The result.
      */
-    public static <T> CompletableFuture<T> futureWithTimeout(Duration timeout, String tag, ScheduledExecutorService executorService) {
+    public static <T> CompletableFuture<T> futureWithTimeout(Duration timeout, String tag, ExecutorService executorService) {
         return futureWithTimeout(CompletableFuture::new, timeout, tag, executorService);
     }
     
@@ -612,15 +602,28 @@ public final class Futures {
      * @param <T>             The Type argument for the CompletableFuture to create.
      * @return A CompletableFuture which is either completed within given timebound or failed with timeout exception.
      */
+    /*
     public static <T> CompletableFuture<T> futureWithTimeout(Supplier<CompletableFuture<T>> futureSupplier,
                                                              Duration timeout, String tag, ScheduledExecutorService executorService) {
         CompletableFuture<T> future = futureSupplier.get();
         ScheduledFuture<Boolean> sf = executorService.schedule(() -> future.completeExceptionally(
                 new TimeoutException(tag)), timeout.toMillis(), TimeUnit.MILLISECONDS);
-        
+
         return future.whenComplete((r, ex) -> {
             sf.cancel(true);
         });
+    }
+
+     */
+
+    public static <T> CompletableFuture<T> futureWithTimeout(Supplier<CompletableFuture<T>> futureSupplier,
+                                                             Duration timeout, String tag, ExecutorService executorService) {
+        CompletableFuture<T> future = futureSupplier.get();
+        Future<T> completableFuture =  executorService.submit(() -> future.completeExceptionally(
+                new TimeoutException(tag)), timeout.toMillis(), TimeUnit.MILLISECONDS));
+
+        
+
     }
     
     /**
